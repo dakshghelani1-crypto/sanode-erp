@@ -1,0 +1,11 @@
+node_modules
+**/node_modules
+.next
+**/.next
+dist
+**/dist
+.git
+.env
+.env.*
+coverage
+Screenshot 2026-09-02 at 11.14.52 PM.png

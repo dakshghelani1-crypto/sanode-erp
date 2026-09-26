@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#090d16">
+  <meta name="application-name" content="PharmaStock Pro">
+  <title>PharmaStock Pro - Medicine & Strip Inventory Manager</title>
+  <meta name="description" content="Precision pharmaceutical inventory system tracking every individual strip, supporting decimal box orders (like 2.5 boxes = 25 strips) and MR physician samples.">
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="theme-dark">
+  <div class="app-layout">
+    
+    <!-- Top Navbar -->
+    <header class="navbar">
+      <div class="nav-brand">
+        <div class="brand-logo">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"/>
+            <path d="m8.5 8.5 7 7"/>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <div class="brand-title-wrap">
+            <span class="brand-title">PharmaStock</span>
+            <span class="brand-badge">PRO</span>
+          </div>
+          <span class="brand-subtitle">Batch, expiry &amp; strip-level inventory</span>
+        </div>
+      </div>
+
+      <!-- Quick Action Navigation -->
+      <div class="nav-actions">
+        <button id="btn-open-calc" class="nav-btn btn-ghost" title="Box &amp; Strip Dispense Calculator">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="16" height="20" x="4" y="2" rx="2"/><line x1="8" x2="16" y1="6" y2="6"/><line x1="16" x2="16" y1="14" y2="18"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M8 18h.01"/></svg>
+          <span>Calculator</span>
+        </button>
+        <button id="btn-new-sale" class="nav-btn btn-primary" title="Doctor Order / Commercial Sale">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+          <span>+ Doctor Sale (Boxes/Strips)</span>
+        </button>
+        <button id="btn-new-sample" class="nav-btn btn-purple" title="Medical Representative Doctor Sampling">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+          <span>+ MR Sample</span>
+        </button>
+        <button id="btn-new-inward" class="nav-btn btn-teal" title="Restock Inventory Inward">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12"/><path d="m8 11 4 4 4-4"/><path d="M8 21h8"/></svg>
+          <span>+ Restock</span>
+        </button>
+        <button id="btn-new-adjustment" class="nav-btn btn-ghost" title="Record a controlled stock adjustment">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v6h6"/><path d="M21 21v-6h-6"/><path d="M20 9A8.5 8.5 0 0 0 5.4 5.4L3 9"/><path d="M4 15a8.5 8.5 0 0 0 14.6 3.6L21 15"/></svg>
+          <span>Adjustment</span>
+        </button>
+        <button id="btn-manage-meds" class="nav-btn btn-ghost" title="Manage Medicines">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+          <span>Config</span>
+        </button>
+      </div>
+    </header>
+
+    <main class="main-content">
+      
+      <!-- Top Banner with Precision Strip Rule Indicator -->
+      <section class="overview-banner">
+        <div class="banner-left">
+          <div class="banner-tag">
+            <span class="pulse-dot"></span>
+            Strip-First Inventory Engine (1 Box = 10 Strips)
+          </div>
+          <h1 class="banner-title">Strip-Level Precision Stock Management</h1>
+          <p class="banner-desc">
+            We don't just count whole boxes—every single strip is accounted for. Supports orders in 
+            <span class="highlight-text">Full Boxes (e.g. 2 Boxes = 20 Strips)</span>, 
+            <span class="highlight-text">Fractional Orders (e.g. 2.5 Boxes = 25 Strips)</span>, 
+            or individual <span class="highlight-text">MR Doctor Samples (1-3 strips)</span>.
+          </p>
+        </div>
+        <div class="banner-right">
+          <div class="unit-logic-card">
+            <div class="unit-logic-header">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+              <span>Decimal Box &amp; Strip Rules</span>
+            </div>
+            <div class="unit-logic-formula">
+              <div class="formula-chip">2.5 Boxes</div>
+              <span class="formula-arrow">➔</span>
+              <div class="formula-example"><strong>20 Strips (2 boxes)</strong> + <strong>5 Loose</strong> = <strong>25 Strips</strong></div>
+            </div>
+            <div class="unit-logic-note">Inventory subtracts exactly 25 strips: 2 full boxes + 5 strips from open box.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- KPI Metrics Grid -->
+      <section class="kpi-grid">
+        <div class="kpi-card" id="kpi-total-strips">
+          <div class="kpi-icon-wrap kpi-blue">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+          </div>
+          <div class="kpi-info">
+            <span class="kpi-label">Total Strips in Stock</span>
+            <div class="kpi-value-group">
+              <span class="kpi-number" id="stat-total-strips">0</span>
+              <span class="kpi-unit">strips</span>
+            </div>
+            <span class="kpi-sub" id="stat-total-equiv-boxes">0.0 Total Boxes equivalent</span>
+          </div>
+        </div>
+
+        <div class="kpi-card" id="kpi-boxes-ready">
+          <div class="kpi-icon-wrap kpi-emerald">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
+          </div>
+          <div class="kpi-info">
+            <span class="kpi-label">Sealed Full Boxes</span>
+            <div class="kpi-value-group">
+              <span class="kpi-number" id="stat-sealed-boxes">0</span>
+              <span class="kpi-unit">boxes</span>
+            </div>
+            <span class="kpi-sub" id="stat-sealed-strips">0 strips sealed</span>
+          </div>
+        </div>
+
+        <div class="kpi-card" id="kpi-loose-strips">
+          <div class="kpi-icon-wrap kpi-amber">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>
+          </div>
+          <div class="kpi-info">
+            <span class="kpi-label">Open Box Loose Strips</span>
+            <div class="kpi-value-group">
+              <span class="kpi-number" id="stat-loose-strips">0</span>
+              <span class="kpi-unit">loose</span>
+            </div>
+            <span class="kpi-sub" id="stat-open-boxes-count">In 0 open boxes</span>
+          </div>
+        </div>
+
+        <div class="kpi-card" id="kpi-mr-samples">
+          <div class="kpi-icon-wrap kpi-purple">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+          </div>
+          <div class="kpi-info">
+            <span class="kpi-label">MR Samples Given</span>
+            <div class="kpi-value-group">
+              <span class="kpi-number" id="stat-sample-strips">0</span>
+              <span class="kpi-unit">strips</span>
+            </div>
+            <span class="kpi-sub" id="stat-sample-count">0 Doctor Visits logged</span>
+          </div>
+        </div>
+
+        <div class="kpi-card" id="kpi-doctor-sales">
+          <div class="kpi-icon-wrap kpi-cyan">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          </div>
+          <div class="kpi-info">
+            <span class="kpi-label">Doctor Commercial Orders</span>
+            <div class="kpi-value-group">
+              <span class="kpi-number" id="stat-sales-strips">0</span>
+              <span class="kpi-unit">strips</span>
+            </div>
+            <span class="kpi-sub" id="stat-sales-count">0 Doctor Orders filled</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Operational attention queue: the first place a warehouse operator checks each day. -->
+      <section class="section-container attention-section" aria-labelledby="attention-heading">
+        <div class="section-header">
+          <div class="section-title-wrap">
+            <h2 class="section-title" id="attention-heading">Operational Attention</h2>
+            <span class="section-badge" id="attention-count-badge">0 items</span>
+          </div>
+          <span class="section-helper">Low stock and batches expiring within 90 days</span>
+        </div>
+        <div class="attention-grid" id="attention-grid" aria-live="polite"></div>
+      </section>
+
+      <!-- Main Medicine Grid Section -->
+      <section class="section-container">
+        <div class="section-header">
+          <div class="section-title-wrap">
+            <h2 class="section-title">Active Formulations (Strip Inventory)</h2>
+            <span class="section-badge" id="med-count-badge">6 Medicines</span>
+          </div>
+          <div class="section-actions">
+            <div class="search-input-wrap">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+              <input type="text" id="med-search-input" placeholder="Search medicine, salt, batch..." />
+            </div>
+            <button id="btn-reset-demo" class="btn-sm btn-ghost" title="Reset to initial 6 medicines with sample data">Reset Demo Data</button>
+          </div>
+        </div>
+
+        <!-- Medicine Cards Grid -->
+        <div class="medicine-grid" id="medicine-grid">
+          <!-- Dynamically populated via JS -->
+        </div>
+      </section>
+
+      <!-- Two-Way Box & Strip Interactive Calculator / Simulator -->
+      <section class="section-container">
+        <div class="calc-banner-card">
+          <div class="calc-header">
+            <div class="calc-title-group">
+              <div class="calc-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="16" height="20" x="4" y="2" rx="2"/><line x1="8" x2="16" y1="6" y2="6"/><line x1="16" x2="16" y1="14" y2="18"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M8 18h.01"/></svg>
+              </div>
+              <div>
+                <h3 class="calc-title">Two-Way Box &amp; Strip Dispense Calculator</h3>
+                <p class="calc-subtitle">Type either Decimal Boxes (e.g. <strong>2.5</strong>) or Total Strips (e.g. <strong>25</strong>) to see the exact packaging split.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="calc-body">
+            <div class="calc-inputs-grid">
+              <div class="form-group">
+                <label for="sim-med-select">Select Medicine</label>
+                <select id="sim-med-select" class="form-control">
+                  <!-- Populated by JS -->
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="sim-boxes-input">Decimal Boxes</label>
+                <div class="input-with-stepper">
+                  <input type="number" id="sim-boxes-input" class="form-control" value="2.5" step="0.1" min="0">
+                  <span class="input-suffix">boxes</span>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="sim-qty-input">Total Strips</label>
+                <div class="input-with-stepper">
+                  <input type="number" id="sim-qty-input" class="form-control" value="25" min="1" step="1">
+                  <span class="input-suffix">strips</span>
+                </div>
+              </div>
+              <div class="form-group" style="align-self: flex-end;">
+                <button id="btn-quick-fill-order" class="btn-primary" style="height: 44px; width: 100%;">
+                  <span>⚡ Create Doctor Order</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Calculation Output Display -->
+            <div class="calc-results-box" id="calc-results-box">
+              <div class="calc-breakdown-main">
+                <div class="calc-result-pill pill-box">
+                  <span class="result-num" id="calc-full-boxes">2</span>
+                  <span class="result-text">Full Sealed Boxes (20 strips)</span>
+                </div>
+                <span class="calc-plus">+</span>
+                <div class="calc-result-pill pill-strip">
+                  <span class="result-num" id="calc-loose-strips">5</span>
+                  <span class="result-text">Loose Strips from Open Box</span>
+                </div>
+              </div>
+
+              <div class="calc-stock-verdict" id="calc-stock-verdict">
+                <span class="verdict-icon">✓</span>
+                <span class="verdict-text" id="calc-verdict-text">Sufficient stock available.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Dispense & Stock Movement Ledger Table -->
+      <section class="section-container">
+        <div class="section-header">
+          <div class="section-title-wrap">
+            <h2 class="section-title">Stock Movement &amp; Dispense Ledger</h2>
+            <span class="section-badge" id="ledger-count-badge">0 Logs</span>
+          </div>
+
+          <div class="section-actions">
+            <!-- Filter Pills -->
+            <div class="filter-pills" id="ledger-filters">
+              <button class="filter-pill active" data-filter="ALL">All Movements</button>
+              <button class="filter-pill pill-filter-sale" data-filter="SALE">🩺 Doctor Sales</button>
+              <button class="filter-pill pill-filter-sample" data-filter="SAMPLE">🎁 MR Samples</button>
+              <button class="filter-pill pill-filter-inward" data-filter="INWARD">📥 Inward Stock</button>
+              <button class="filter-pill pill-filter-adjustment" data-filter="ADJUSTMENT">↺ Adjustments</button>
+            </div>
+
+            <button id="btn-export-csv" class="btn-sm btn-ghost" title="Download Ledger as CSV">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              <span>Export CSV</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="ledger-table">
+            <thead>
+              <tr>
+                <th>Date &amp; Time</th>
+                <th>Type</th>
+                <th>Medicine Formulation</th>
+                <th>Quantity (Strips)</th>
+                <th>Packaging Split</th>
+                <th>Doctor / Recipient / MR</th>
+                <th>Notes / Ref</th>
+                <th>Stock After</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="ledger-table-body">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <div class="footer-left">
+        <span>PharmaStock Pro • Strip-Precision Pharmaceutical Inventory &amp; Sampling Management</span>
+      </div>
+      <div class="footer-right">
+        <button id="btn-export-json" class="btn-xs btn-ghost">Backup JSON</button>
+        <button id="btn-import-json" class="btn-xs btn-ghost">Restore JSON</button>
+        <input type="file" id="file-import-input" accept=".json" style="display: none;" />
+      </div>
+    </footer>
+  </div>
+
+  <!-- ==================== MODALS ==================== -->
+
+  <!-- Modal 1: Doctor Order / Sale Modal (Supports Decimal Boxes like 2.5 boxes) -->
+  <div class="modal-backdrop" id="modal-sale" style="display: none;">
+    <div class="modal-container modal-lg">
+      <div class="modal-header header-sale">
+        <div class="modal-title-wrap">
+          <div class="modal-badge-icon badge-sale">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+          </div>
+          <div>
+            <h3 class="modal-title">New Doctor Sale / Commercial Order</h3>
+            <p class="modal-desc">Supports decimal boxes (e.g. 2.5 boxes), exact strips, or boxes + loose strips.</p>
+          </div>
+        </div>
+        <button class="modal-close" data-close="modal-sale">&times;</button>
+      </div>
+
+      <form id="form-sale" class="modal-body">
+        <div class="form-group">
+          <label for="sale-medicine-select">Select Medicine <span class="required">*</span></label>
+          <select id="sale-medicine-select" class="form-control" required>
+            <!-- Populated dynamically -->
+          </select>
+          <div class="stock-hint" id="sale-stock-hint">Available: 0 strips</div>
+        </div>
+
+        <!-- Quick Decimal Box Presets for Doctors -->
+        <div class="form-group">
+          <label>Quick Order Presets</label>
+          <div class="quick-qty-pills" id="sale-preset-pills">
+            <button type="button" class="qty-pill" data-boxes="0.5">0.5 Box (5 strips)</button>
+            <button type="button" class="qty-pill" data-boxes="1">1 Box (10 strips)</button>
+            <button type="button" class="qty-pill" data-boxes="1.5">1.5 Boxes (15 strips)</button>
+            <button type="button" class="qty-pill" data-boxes="2">2 Boxes (20 strips)</button>
+            <button type="button" class="qty-pill active" data-boxes="2.5">⭐ 2.5 Boxes (25 strips)</button>
+            <button type="button" class="qty-pill" data-boxes="3">3 Boxes (30 strips)</button>
+            <button type="button" class="qty-pill" data-boxes="5">5 Boxes (50 strips)</button>
+            <button type="button" class="qty-pill" data-boxes="10">10 Boxes (100 strips)</button>
+          </div>
+        </div>
+
+        <!-- Synchronized Reactive Inputs: Decimal Boxes & Strips -->
+        <div class="form-row">
+          <div class="form-group col-4">
+            <label for="sale-dec-boxes">Boxes (Allows Decimals)</label>
+            <div class="input-with-stepper">
+              <input type="number" id="sale-dec-boxes" class="form-control highlight-input" step="0.1" min="0" value="2.5" placeholder="e.g. 2.5">
+              <span class="input-suffix">boxes</span>
+            </div>
+            <span class="help-text" id="sale-box-multiplier-label">e.g. 2.5 = 25 strips</span>
+          </div>
+
+          <div class="form-group col-4">
+            <label for="sale-total-strips-input">Total Strips to Deduct</label>
+            <div class="input-with-stepper">
+              <input type="number" id="sale-total-strips-input" class="form-control highlight-input" min="1" step="1" value="25" placeholder="25">
+              <span class="input-suffix">strips</span>
+            </div>
+            <span class="help-text">Direct atomic strip count</span>
+          </div>
+
+          <div class="form-group col-4">
+            <label for="sale-loose-strips-only">Or Loose Strips Only</label>
+            <div class="input-with-stepper">
+              <input type="number" id="sale-loose-strips-only" class="form-control" min="0" value="5" placeholder="5">
+              <span class="input-suffix">loose</span>
+            </div>
+            <span class="help-text">Individual loose strips</span>
+          </div>
+        </div>
+
+        <!-- Real-time Order Summary Preview Card -->
+        <div class="order-preview-card" id="sale-preview-card">
+          <div class="preview-title">Automated Dispense Breakdown Preview:</div>
+          <div class="preview-breakdown">
+            Dispensing: <strong id="sale-summary-total">25 Strips</strong> 
+            (<span id="sale-summary-boxes" class="badge-box-tag">2 Full Sealed Boxes</span> + <span id="sale-summary-loose" class="badge-strip-tag">5 Loose Strips from Open Box</span>)
+          </div>
+          <div class="preview-status" id="sale-summary-validation">✓ Stock is sufficient</div>
+        </div>
+
+        <!-- Doctor Details with Auto-Suggest Datalists -->
+        <div class="form-row">
+          <div class="form-group col-6">
+            <label for="sale-doctor-name">Doctor / Hospital / Chemist Name <span class="required">*</span></label>
+            <input type="text" id="sale-doctor-name" list="datalist-doctors" class="form-control" placeholder="e.g. Dr. S. Mehta / Apollo Clinic" required>
+            <datalist id="datalist-doctors"></datalist>
+          </div>
+          <div class="form-group col-6">
+            <label for="sale-ref-no">Invoice / Challan Reference</label>
+            <input type="text" id="sale-ref-no" class="form-control" placeholder="e.g. INV-2026-081">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="sale-notes">Notes / Special Instructions</label>
+          <input type="text" id="sale-notes" class="form-control" placeholder="Optional delivery, payment or batch note">
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-ghost" data-close="modal-sale">Cancel</button>
+          <button type="submit" class="btn-primary" id="btn-submit-sale">Confirm &amp; Deduct 25 Strips</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal 2: MR Doctor Sample Modal -->
+  <div class="modal-backdrop" id="modal-sample" style="display: none;">
+    <div class="modal-container">
+      <div class="modal-header header-sample">
+        <div class="modal-title-wrap">
+          <div class="modal-badge-icon badge-sample">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+          </div>
+          <div>
+            <h3 class="modal-title">Log MR Physician Sample</h3>
+            <p class="modal-desc">Record promotional sample strips given to doctors during field visits.</p>
+          </div>
+        </div>
+        <button class="modal-close" data-close="modal-sample">&times;</button>
+      </div>
+
+      <form id="form-sample" class="modal-body">
+        <div class="form-group">
+          <label for="sample-medicine-select">Select Medicine <span class="required">*</span></label>
+          <select id="sample-medicine-select" class="form-control" required>
+            <!-- Populated dynamically -->
+          </select>
+          <div class="stock-hint" id="sample-stock-hint">Available: 0 strips</div>
+        </div>
+
+        <div class="form-group">
+          <label>Sample Quantity (Strips) <span class="required">*</span></label>
+          <div class="quick-qty-pills">
+            <button type="button" class="qty-pill active" data-qty="1">1 Strip</button>
+            <button type="button" class="qty-pill" data-qty="2">2 Strips</button>
+            <button type="button" class="qty-pill" data-qty="3">3 Strips</button>
+            <button type="button" class="qty-pill" data-qty="5">5 Strips</button>
+            <button type="button" class="qty-pill" data-qty="10">1 Full Box (10)</button>
+          </div>
+          <div class="input-with-stepper" style="margin-top: 8px;">
+            <input type="number" id="sample-strips-input" class="form-control" value="1" min="1" required>
+            <span class="input-suffix">strips</span>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group col-6">
+            <label for="sample-mr-name">MR (Representative) Name <span class="required">*</span></label>
+            <input type="text" id="sample-mr-name" list="datalist-mrs" class="form-control" placeholder="e.g. Rahul Patel (Area 1)" required>
+            <datalist id="datalist-mrs"></datalist>
+          </div>
+          <div class="form-group col-6">
+            <label for="sample-doctor-name">Doctor Name <span class="required">*</span></label>
+            <input type="text" id="sample-doctor-name" list="datalist-doctors" class="form-control" placeholder="e.g. Dr. K. Joshi (Physician)" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="sample-clinic">Clinic / Hospital / Area</label>
+          <input type="text" id="sample-clinic" class="form-control" placeholder="e.g. Sterling Hospital / City Clinic">
+        </div>
+
+        <div class="form-group">
+          <label for="sample-notes">Visit Notes / Doctor Feedback</label>
+          <input type="text" id="sample-notes" class="form-control" placeholder="e.g. Doctor showed high interest, follow up next Tuesday">
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-ghost" data-close="modal-sample">Cancel</button>
+          <button type="submit" class="btn-purple" id="btn-submit-sample">Deduct Sample &amp; Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal 3: Restock / Inward Inventory Modal -->
+  <div class="modal-backdrop" id="modal-inward" style="display: none;">
+    <div class="modal-container">
+      <div class="modal-header header-teal">
+        <div class="modal-title-wrap">
+          <div class="modal-badge-icon badge-teal">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12"/><path d="m8 11 4 4 4-4"/><path d="M8 21h8"/></svg>
+          </div>
+          <div>
+            <h3 class="modal-title">Restock Medicine Inward</h3>
+            <p class="modal-desc">Add new batches or incoming factory shipment stock.</p>
+          </div>
+        </div>
+        <button class="modal-close" data-close="modal-inward">&times;</button>
+      </div>
+
+      <form id="form-inward" class="modal-body">
+        <div class="form-group">
+          <label for="inward-medicine-select">Select Medicine <span class="required">*</span></label>
+          <select id="inward-medicine-select" class="form-control" required>
+            <!-- Populated dynamically -->
+          </select>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group col-6">
+            <label for="inward-boxes">Add Boxes</label>
+            <input type="number" id="inward-boxes" class="form-control" min="0" value="10" placeholder="0">
+            <span class="help-text" id="inward-box-multiplier">10 boxes × 10 = 100 strips</span>
+          </div>
+          <div class="form-group col-6">
+            <label for="inward-strips">Add Loose Strips (Optional)</label>
+            <input type="number" id="inward-strips" class="form-control" min="0" value="0" placeholder="0">
+            <span class="help-text">Individual loose strips</span>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group col-6">
+            <label for="inward-batch">Batch Number <span class="required">*</span></label>
+            <input type="text" id="inward-batch" class="form-control" placeholder="e.g. B-9482" required>
+          </div>
+          <div class="form-group col-6">
+            <label for="inward-expiry">Expiry Date <span class="required">*</span></label>
+            <input type="month" id="inward-expiry" class="form-control" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="inward-source">Manufacturer / Supplier / Invoice Reference <span class="required">*</span></label>
+          <input type="text" id="inward-source" class="form-control" placeholder="e.g. Sanode Manufacturing Plant / Challan #4481" required>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-ghost" data-close="modal-inward">Cancel</button>
+          <button type="submit" class="btn-teal" id="btn-submit-inward">Add to Inventory</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Controlled adjustment modal: used for verified physical-count corrections only. -->
+  <div class="modal-backdrop" id="modal-adjustment" style="display: none;">
+    <div class="modal-container">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <div class="modal-badge-icon">↺</div>
+          <div>
+            <h3 class="modal-title">Verified Stock Adjustment</h3>
+            <p class="modal-desc">Creates a permanent correction record. Use only after a physical count.</p>
+          </div>
+        </div>
+        <button class="modal-close" data-close="modal-adjustment" aria-label="Close adjustment form">&times;</button>
+      </div>
+      <form id="form-adjustment" class="modal-body">
+        <div class="form-group">
+          <label for="adjustment-medicine-select">Medicine <span class="required">*</span></label>
+          <select id="adjustment-medicine-select" class="form-control" required></select>
+          <div class="stock-hint" id="adjustment-stock-hint">Available: 0 strips</div>
+        </div>
+        <div class="form-group">
+          <label for="adjustment-qty">Count Difference (strips) <span class="required">*</span></label>
+          <input type="number" id="adjustment-qty" class="form-control" step="1" placeholder="Use - for shortages, + for gains" required>
+          <span class="help-text">Example: -2 for two missing strips; +5 for five found strips.</span>
+        </div>
+        <div class="form-group">
+          <label for="adjustment-reason">Reason and physical-count reference <span class="required">*</span></label>
+          <input type="text" id="adjustment-reason" class="form-control" placeholder="e.g. Cycle count 26 Sep — shelf A3" required>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-ghost" data-close="modal-adjustment">Cancel</button>
+          <button type="submit" class="btn-primary">Record Controlled Adjustment</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal 4: Manage Medicines / Settings -->
+  <div class="modal-backdrop" id="modal-manage" style="display: none;">
+    <div class="modal-container modal-lg">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <div class="modal-badge-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+          </div>
+          <div>
+            <h3 class="modal-title">Medicine Catalog &amp; Packaging Rules</h3>
+            <p class="modal-desc">Configure the 6 medicines, packaging strip count, and reorder levels.</p>
+          </div>
+        </div>
+        <button class="modal-close" data-close="modal-manage">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="med-manage-list" id="med-manage-list">
+          <!-- Populated dynamically with medicine configuration rows -->
+        </div>
+
+        <hr class="divider">
+
+        <h4 style="margin: 0 0 12px 0; font-size: 15px; color: var(--text-primary);">+ Add New Medicine Formulation</h4>
+        <form id="form-add-med" class="form-row align-end">
+          <div class="form-group col-4">
+            <label for="new-med-name">Medicine Name <span class="required">*</span></label>
+            <input type="text" id="new-med-name" class="form-control" placeholder="e.g. Azithromycin 500" required>
+          </div>
+          <div class="form-group col-3">
+            <label for="new-med-salt">Salt / Category</label>
+            <input type="text" id="new-med-salt" class="form-control" placeholder="e.g. Antibiotic">
+          </div>
+          <div class="form-group col-2">
+            <label for="new-med-perbox">Strips/Box</label>
+            <input type="number" id="new-med-perbox" class="form-control" value="10" min="1" max="100" required>
+          </div>
+          <div class="form-group col-3">
+            <button type="submit" class="btn-primary" style="width: 100%;">Add Medicine</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-ghost" data-close="modal-manage">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 5: Printable Delivery Challan / Slip -->
+  <div class="modal-backdrop" id="modal-challan" style="display: none;">
+    <div class="modal-container" style="max-width: 520px;">
+      <div class="modal-header">
+        <h3 class="modal-title">📄 Delivery Challan / Dispatch Slip</h3>
+        <button class="modal-close" data-close="modal-challan">&times;</button>
+      </div>
+      <div class="modal-body" id="challan-print-area">
+        <!-- Rendered dynamically -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-ghost" data-close="modal-challan">Close</button>
+        <button type="button" class="btn-primary" id="btn-print-challan">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></svg>
+          <span>Print Slip</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Script -->
+  <script src="app.js"></script>
+</body>
+</html>

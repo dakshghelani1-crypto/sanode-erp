@@ -1,0 +1,178 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  WAREHOUSE
+  SALES
+  MR
+  ACCOUNTS
+  VIEWER
+}
+
+enum LedgerType {
+  OPENING_BALANCE
+  GOODS_RECEIPT
+  COMMERCIAL_DISPATCH
+  FREE_GOODS_DISPATCH
+  MR_SAMPLE_DISPATCH
+  CUSTOMER_RETURN
+  DAMAGE_WRITE_OFF
+  EXPIRY_QUARANTINE
+  ADJUSTMENT_IN
+  ADJUSTMENT_OUT
+}
+
+enum OrderStatus {
+  DRAFT
+  CONFIRMED
+  DISPATCHED
+  CANCELLED
+}
+
+model Organization {
+  id        String    @id @default(cuid())
+  name      String
+  createdAt DateTime  @default(now())
+  users     User[]
+  products  Product[]
+}
+
+model User {
+  id             String             @id @default(cuid())
+  organizationId String
+  organization   Organization       @relation(fields: [organizationId], references: [id])
+  email          String             @unique
+  name           String
+  passwordHash   String
+  role           UserRole
+  isActive       Boolean            @default(true)
+  createdAt      DateTime           @default(now())
+  ledgerEntries  StockLedgerEntry[] @relation("LedgerCreatedBy")
+}
+
+model Product {
+  id                 String             @id @default(cuid())
+  organizationId     String
+  organization       Organization       @relation(fields: [organizationId], references: [id])
+  code               String
+  name               String
+  composition        String?
+  stripsPerBox       Int
+  reorderLevelStrips Int                @default(0)
+  availableStrips    Int                @default(0)
+  isActive           Boolean            @default(true)
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+  batches            Batch[]
+  orderLines         SalesOrderLine[]
+  ledgerEntries      StockLedgerEntry[]
+  schemes            TradeScheme[]
+
+  @@unique([organizationId, code])
+  @@index([organizationId, name])
+}
+
+model Batch {
+  id                String             @id @default(cuid())
+  productId         String
+  product           Product            @relation(fields: [productId], references: [id])
+  batchNumber       String
+  manufacturingDate DateTime?
+  expiryDate        DateTime
+  unitCostPaise     Int
+  receivedStrips    Int
+  availableStrips   Int
+  receivedAt        DateTime           @default(now())
+  supplierName      String
+  supplierRef       String
+  isQuarantined     Boolean            @default(false)
+  createdAt         DateTime           @default(now())
+  allocations       StockAllocation[]
+  ledgerEntries     StockLedgerEntry[]
+
+  @@unique([productId, batchNumber])
+  @@index([productId, expiryDate, availableStrips])
+}
+
+model TradeScheme {
+  id             String    @id @default(cuid())
+  productId      String
+  product        Product   @relation(fields: [productId], references: [id])
+  name           String
+  minimumBoxes   Int
+  freeStrips     Int
+  effectiveFrom  DateTime
+  effectiveUntil DateTime?
+  isActive       Boolean   @default(true)
+  createdAt      DateTime  @default(now())
+}
+
+model SalesOrder {
+  id             String           @id @default(cuid())
+  organizationId String
+  orderNumber    String           @unique
+  customerName   String
+  customerType   String
+  status         OrderStatus      @default(DRAFT)
+  createdAt      DateTime         @default(now())
+  dispatchedAt   DateTime?
+  lines          SalesOrderLine[]
+}
+
+model SalesOrderLine {
+  id             String            @id @default(cuid())
+  salesOrderId   String
+  salesOrder     SalesOrder        @relation(fields: [salesOrderId], references: [id])
+  productId      String
+  product        Product           @relation(fields: [productId], references: [id])
+  billedBoxes    Int
+  billedStrips   Int
+  freeStrips     Int               @default(0)
+  unitPricePaise Int
+  schemeSnapshot Json?
+  allocations    StockAllocation[]
+}
+
+model StockLedgerEntry {
+  id                  String            @id @default(cuid())
+  organizationId      String
+  productId           String
+  product             Product           @relation(fields: [productId], references: [id])
+  batchId             String?
+  batch               Batch?            @relation(fields: [batchId], references: [id])
+  type                LedgerType
+  quantityStrips      Int
+  balanceAfterProduct Int
+  balanceAfterBatch   Int?
+  referenceType       String
+  referenceId         String
+  note                String?
+  idempotencyKey      String?           @unique
+  createdById         String?
+  createdBy           User?             @relation("LedgerCreatedBy", fields: [createdById], references: [id])
+  createdAt           DateTime          @default(now())
+  allocations         StockAllocation[]
+
+  @@index([productId, createdAt])
+  @@index([batchId, createdAt])
+  @@index([organizationId, createdAt])
+}
+
+model StockAllocation {
+  id                 String           @id @default(cuid())
+  salesOrderLineId   String?
+  salesOrderLine     SalesOrderLine?  @relation(fields: [salesOrderLineId], references: [id])
+  stockLedgerEntryId String
+  stockLedgerEntry   StockLedgerEntry @relation(fields: [stockLedgerEntryId], references: [id])
+  batchId            String
+  batch              Batch            @relation(fields: [batchId], references: [id])
+  quantityStrips     Int
+  createdAt          DateTime         @default(now())
+}

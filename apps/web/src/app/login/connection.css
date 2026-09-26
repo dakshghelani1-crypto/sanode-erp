@@ -1,0 +1,2 @@
+.api-status{display:flex;align-items:center;gap:8px;margin:0 0 20px;padding:9px 11px;border-radius:9px;font-size:12px}.api-status span{width:7px;height:7px;border-radius:50%;background:currentColor}.api-checking{color:#8a6511;background:#fff8e6}.api-online{color:#13724c;background:#ecfaf3}.api-offline{color:#a33b46;background:#fff0f1}
+.preview-link{display:block;margin-top:16px;text-align:center;color:#5b49e8;font-size:12px;font-weight:700;text-decoration:none}
