@@ -12,7 +12,7 @@ async function bootstrap() {
   app.use(cookieParser());
   const allowedOrigins = process.env.WEB_ORIGIN?.split(',').map((o) => o.trim()) ?? ['http://localhost:3000'];
   app.enableCors({
-    origin: (requestOrigin, callback) => {
+    origin: (requestOrigin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
       if (!requestOrigin || allowedOrigins.includes('*') || allowedOrigins.includes(requestOrigin) || requestOrigin.endsWith('.vercel.app')) {
         callback(null, true);
       } else {
