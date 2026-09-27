@@ -21,3 +21,4 @@ skills-lock.json
 *.pem
 *.key
 *.cert
+.vercel/
