@@ -9,14 +9,18 @@ jobs:
   verify:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
-        with:
-          version: 11
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm --filter api prisma:generate
+        env:
+          DATABASE_URL: "postgresql://ci:ci@localhost:5432/ci_db"
       - run: pnpm build
+        env:
+          DATABASE_URL: "postgresql://ci:ci@localhost:5432/ci_db"
+          JWT_SECRET: "ci-dummy-jwt-secret-for-build-validation"
+
