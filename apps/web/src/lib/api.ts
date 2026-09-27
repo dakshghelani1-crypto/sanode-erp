@@ -27,7 +27,10 @@ export type LedgerEntry = {
   product: { name: string; code: string; stripsPerBox: number }; batch: { batchNumber: string; expiryDate: string } | null; createdBy: { name: string } | null;
 };
 
-export const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/v1').trim().replace(/\/+$/, '');
+const envApiUrl = process.env.NEXT_PUBLIC_API_URL?.trim().replace(/\/+$/, '');
+export const API_BASE_URL = typeof window !== 'undefined'
+  ? (envApiUrl || '/v1')
+  : (envApiUrl || 'https://sanode-erp.onrender.com/v1');
 const apiUrl = API_BASE_URL;
 
 export async function getProducts(cookieHeader?: string): Promise<Product[]> {
