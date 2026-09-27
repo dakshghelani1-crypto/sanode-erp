@@ -24,6 +24,10 @@ export default function LoginPage() {
       const response = await fetch(`${apiUrl}/auth/login`, { method: 'POST', credentials: 'include', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ email: form.get('email'), password: form.get('password') }) });
       const body = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(body.message || 'Sign in failed.');
+      if (body.token) {
+        document.cookie = `sanode_access=${body.token}; path=/; max-age=28800; SameSite=Lax; Secure`;
+        try { localStorage.setItem('sanode_token', body.token); } catch {}
+      }
       window.location.href = '/';
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : 'Sign in failed.');

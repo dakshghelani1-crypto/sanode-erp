@@ -33,16 +33,35 @@ export const API_BASE_URL = typeof window !== 'undefined'
   : (envApiUrl || 'https://sanode-erp.onrender.com/v1');
 const apiUrl = API_BASE_URL;
 
+export function extractToken(cookieHeader?: string): string | undefined {
+  if (!cookieHeader) return undefined;
+  const match = cookieHeader.match(/sanode_access=([^;]+)/);
+  return match ? match[1] : undefined;
+}
+
+export function formatCookieHeader(store: { get: (name: string) => { value: string } | undefined; getAll: () => { name: string; value: string }[] }): string {
+  const token = store.get('sanode_access')?.value;
+  return token ? `sanode_access=${token}` : store.getAll().map(c => `${c.name}=${c.value}`).join('; ');
+}
+
 export async function getProducts(cookieHeader?: string): Promise<Product[]> {
   const organizationId = process.env.NEXT_PUBLIC_DEMO_ORGANIZATION_ID;
-  const headers: HeadersInit = cookieHeader ? { cookie: cookieHeader } : {};
+  const token = extractToken(cookieHeader);
+  const headers: HeadersInit = {
+    ...(cookieHeader ? { cookie: cookieHeader } : {}),
+    ...(token ? { authorization: `Bearer ${token}` } : {})
+  };
   const response = await fetch(`${apiUrl}/inventory/products${organizationId ? `?organizationId=${encodeURIComponent(organizationId)}` : ''}`, { cache: 'no-store', headers });
   if (!response.ok) throw new Error('Inventory API is unavailable.');
   return response.json() as Promise<Product[]>;
 }
 
 export async function getLedger(cookieHeader?: string): Promise<LedgerEntry[]> {
-  const headers: HeadersInit = cookieHeader ? { cookie: cookieHeader } : {};
+  const token = extractToken(cookieHeader);
+  const headers: HeadersInit = {
+    ...(cookieHeader ? { cookie: cookieHeader } : {}),
+    ...(token ? { authorization: `Bearer ${token}` } : {})
+  };
   const response = await fetch(`${apiUrl}/inventory/ledger?limit=20`, { cache: 'no-store', headers });
   if (!response.ok) throw new Error('Inventory ledger is unavailable.');
   return response.json() as Promise<LedgerEntry[]>;

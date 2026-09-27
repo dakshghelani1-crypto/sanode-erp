@@ -1,5 +1,5 @@
 import { OverviewWorkspace } from '@/components/overview-workspace';
-import { getLedger, getProducts, type LedgerEntry, type Product } from '@/lib/api';
+import { formatCookieHeader, getLedger, getProducts, type LedgerEntry, type Product } from '@/lib/api';
 import { cookies } from 'next/headers';
 
 export const dynamic = 'force-dynamic';
@@ -16,7 +16,7 @@ const previewLedger: LedgerEntry[] = [];
 
 export default async function HomePage() {
   try {
-    const cookieHeader = (await cookies()).toString();
+    const cookieHeader = formatCookieHeader(await cookies());
     const [products, activity] = await Promise.all([getProducts(cookieHeader), getLedger(cookieHeader)]);
     return <OverviewWorkspace products={products} activity={activity} source="live" />;
   } catch {
