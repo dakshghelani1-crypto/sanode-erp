@@ -20,9 +20,9 @@ import {
   UserCheck,
   X
 } from 'lucide-react';
-import type { Customer, Product, Representative } from '@/lib/api';
+import { API_BASE_URL, type Customer, type Product, type Representative } from '@/lib/api';
 
-const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/v1';
+const apiUrl = API_BASE_URL;
 
 function idempotencyKey() {
   return typeof crypto !== 'undefined' && crypto.randomUUID

@@ -19,9 +19,9 @@ import {
   TrendingUp,
   X
 } from 'lucide-react';
-import type { Product } from '@/lib/api';
+import { API_BASE_URL, type Product } from '@/lib/api';
 
-const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/v1';
+const apiUrl = API_BASE_URL;
 
 function idempotencyKey() {
   return typeof crypto !== 'undefined' && crypto.randomUUID

@@ -27,7 +27,8 @@ export type LedgerEntry = {
   product: { name: string; code: string; stripsPerBox: number }; batch: { batchNumber: string; expiryDate: string } | null; createdBy: { name: string } | null;
 };
 
-const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/v1';
+export const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/v1').trim().replace(/\/+$/, '');
+const apiUrl = API_BASE_URL;
 
 export async function getProducts(cookieHeader?: string): Promise<Product[]> {
   const organizationId = process.env.NEXT_PUBLIC_DEMO_ORGANIZATION_ID;

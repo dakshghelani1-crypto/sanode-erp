@@ -1,10 +1,11 @@
 'use client';
 
 import { FormEvent, useEffect, useState } from 'react';
+import { API_BASE_URL } from '@/lib/api';
 import './login.css';
 import './connection.css';
 
-const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/v1';
+const apiUrl = API_BASE_URL;
 
 export default function LoginPage() {
   const [error, setError] = useState('');
