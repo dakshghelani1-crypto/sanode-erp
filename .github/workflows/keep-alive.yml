@@ -1,0 +1,15 @@
+name: Keep API Alive
+
+on:
+  schedule:
+    # Ping every 10 minutes to prevent Render free instance from sleeping
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+
+jobs:
+  keep-alive:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Sanode API Health Endpoint
+        run: |
+          curl -sSf -m 30 https://sanode-erp.onrender.com/v1/health || true
