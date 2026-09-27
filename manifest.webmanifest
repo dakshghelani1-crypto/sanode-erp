@@ -1,9 +1,0 @@
-{
-  "name": "PharmaStock Pro",
-  "short_name": "PharmaStock",
-  "description": "Batch, expiry and strip-level pharmaceutical inventory control.",
-  "start_url": "./",
-  "display": "standalone",
-  "background_color": "#090d16",
-  "theme_color": "#090d16"
-}

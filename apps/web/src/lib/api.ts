@@ -1,5 +1,27 @@
-export type Batch = { id: string; batchNumber: string; expiryDate: string; availableStrips: number; supplierName: string };
-export type Product = { id: string; code: string; name: string; stripsPerBox: number; availableStrips: number; reorderLevelStrips: number; batches: Batch[] };
+export type Batch = {
+  id: string;
+  batchNumber: string;
+  expiryDate: string;
+  manufacturingDate?: string | null;
+  unitCostPaise?: number;
+  mrpPaise?: number | null;
+  gstRate?: number | null;
+  receivedStrips?: number;
+  availableStrips: number;
+  supplierName: string;
+  supplierRef?: string;
+  receivedAt?: string;
+};
+export type Product = {
+  id: string;
+  code: string;
+  name: string;
+  composition?: string | null;
+  stripsPerBox: number;
+  availableStrips: number;
+  reorderLevelStrips: number;
+  batches: Batch[];
+};
 export type LedgerEntry = {
   id: string; type: string; quantityStrips: number; balanceAfterProduct: number; referenceType: string; referenceId: string; note: string | null; createdAt: string;
   product: { name: string; code: string; stripsPerBox: number }; batch: { batchNumber: string; expiryDate: string } | null; createdBy: { name: string } | null;
@@ -21,3 +43,32 @@ export async function getLedger(cookieHeader?: string): Promise<LedgerEntry[]> {
   if (!response.ok) throw new Error('Inventory ledger is unavailable.');
   return response.json() as Promise<LedgerEntry[]>;
 }
+
+export type Customer = {
+  id: string;
+  name: string;
+  type: string;
+  createdAt: string;
+};
+
+export async function getCustomers(cookieHeader?: string, type?: string): Promise<Customer[]> {
+  const headers: HeadersInit = cookieHeader ? { cookie: cookieHeader } : {};
+  const query = type ? `?type=${encodeURIComponent(type)}` : '';
+  const response = await fetch(`${apiUrl}/inventory/customers${query}`, { cache: 'no-store', headers });
+  if (!response.ok) return [];
+  return response.json() as Promise<Customer[]>;
+}
+
+export type Representative = {
+  id: string;
+  name: string;
+  role: string;
+};
+
+export async function getRepresentatives(cookieHeader?: string): Promise<Representative[]> {
+  const headers: HeadersInit = cookieHeader ? { cookie: cookieHeader } : {};
+  const response = await fetch(`${apiUrl}/inventory/representatives`, { cache: 'no-store', headers });
+  if (!response.ok) return [];
+  return response.json() as Promise<Representative[]>;
+}
+

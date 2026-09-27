@@ -10,8 +10,6 @@ Batch-aware pharmaceutical inventory, dispatch, trade schemes, and MR sample acc
 - PostgreSQL — transactional source of truth; product and batch balances are maintained only by server-side transactions.
 - Redis — reserved for scheduled expiry alerts, exports, and notification jobs.
 
-The former static prototype remains in the repository root as a visual reference while the new platform is developed under `apps/`.
-
 ## Inventory invariants
 
 1. Strips are the atomic stock unit; boxes are converted using the product pack rule.

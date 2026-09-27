@@ -2,7 +2,7 @@ import { Body, Controller, Get, Param, Post, Query, Req, UseGuards } from '@nest
 import type { Request } from 'express';
 import { JwtAuthGuard, type AuthenticatedUser } from '../auth/jwt-auth.guard.js';
 import { Roles, RolesGuard } from '../auth/roles.guard.js';
-import { DispatchOrderDto, DispatchPreviewDto, ReceiveBatchDto, SampleDispatchDto } from './dto.js';
+import { CreateCustomerDto, CreateProductDto, DispatchOrderDto, DispatchPreviewDto, ReceiveBatchDto, SampleDispatchDto } from './dto.js';
 import { InventoryService } from './inventory.service.js';
 
 @Controller('inventory')
@@ -11,6 +11,10 @@ export class InventoryController {
   constructor(private readonly inventory: InventoryService) {}
 
   @Get('products') listProducts(@Req() req: Request & { user: AuthenticatedUser }, @Query('organizationId') _organizationId?: string) { return this.inventory.listProducts(req.user.organizationId); }
+  @Post('products') @Roles('ADMIN', 'WAREHOUSE', 'SALES') createProduct(@Req() req: Request & { user: AuthenticatedUser }, @Body() dto: CreateProductDto) { return this.inventory.createProduct({ ...dto, organizationId: req.user.organizationId }); }
+  @Get('customers') listCustomers(@Req() req: Request & { user: AuthenticatedUser }, @Query('type') type?: string) { return this.inventory.listCustomers(req.user.organizationId, type); }
+  @Get('representatives') listRepresentatives(@Req() req: Request & { user: AuthenticatedUser }) { return this.inventory.listRepresentatives(req.user.organizationId); }
+  @Post('customers') @Roles('ADMIN', 'WAREHOUSE', 'SALES') createCustomer(@Req() req: Request & { user: AuthenticatedUser }, @Body() dto: CreateCustomerDto) { return this.inventory.createCustomer({ ...dto, organizationId: req.user.organizationId }); }
   @Get('ledger') ledger(@Req() req: Request & { user: AuthenticatedUser }, @Query('productId') productId?: string, @Query('limit') limit?: string) { return this.inventory.listLedger(req.user.organizationId, productId, limit ? Number(limit) : undefined); }
   @Get('dispatch-preview') previewDispatch(@Req() req: Request & { user: AuthenticatedUser }, @Query() query: DispatchPreviewDto) { return this.inventory.previewCommercialDispatch(query, req.user.organizationId); }
   @Get('products/:productId') product(@Req() req: Request & { user: AuthenticatedUser }, @Param('productId') productId: string) { return this.inventory.getProduct(productId, req.user.organizationId); }

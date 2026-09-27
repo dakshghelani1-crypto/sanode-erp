@@ -42,6 +42,7 @@ model Organization {
   createdAt DateTime  @default(now())
   users     User[]
   products  Product[]
+  customers Customer[]
 }
 
 model User {
@@ -87,6 +88,8 @@ model Batch {
   manufacturingDate DateTime?
   expiryDate        DateTime
   unitCostPaise     Int
+  mrpPaise          Int?
+  gstRate           Float?
   receivedStrips    Int
   availableStrips   Int
   receivedAt        DateTime           @default(now())
@@ -175,4 +178,16 @@ model StockAllocation {
   batch              Batch            @relation(fields: [batchId], references: [id])
   quantityStrips     Int
   createdAt          DateTime         @default(now())
+}
+
+model Customer {
+  id             String       @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  name           String
+  type           String       // "Doctor" | "Hospital" | "Pharmacy / Retailer"
+  createdAt      DateTime     @default(now())
+
+  @@unique([organizationId, name])
+  @@index([organizationId, type])
 }
