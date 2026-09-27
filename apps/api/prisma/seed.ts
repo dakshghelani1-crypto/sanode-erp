@@ -14,10 +14,10 @@ const products = [
 
 async function main() {
   const organization = await prisma.organization.upsert({ where: { id: 'sanode-demo' }, update: { name: 'Sanode Pharmaceuticals' }, create: { id: 'sanode-demo', name: 'Sanode Pharmaceuticals' } });
-  const seedPassword = process.env.SEED_ADMIN_PASSWORD ?? 'ChangeMeBeforeProduction!';
+  const seedPassword = process.env.SEED_ADMIN_PASSWORD ?? 'Healthcare@Sanode';
   const salt = randomBytes(16);
   const passwordHash = `scrypt:${salt.toString('base64')}:${scryptSync(seedPassword, salt, 64).toString('base64')}`;
-  await prisma.user.upsert({ where: { email: 'admin@sanode.local' }, update: { organizationId: organization.id, name: 'Sanode Admin', role: 'ADMIN', isActive: true, passwordHash }, create: { organizationId: organization.id, email: 'admin@sanode.local', name: 'Sanode Admin', role: 'ADMIN', passwordHash } });
+  await prisma.user.upsert({ where: { email: 'admin@sanodehealthcare.com' }, update: { organizationId: organization.id, name: 'Sanode Admin', role: 'ADMIN', isActive: true, passwordHash }, create: { organizationId: organization.id, email: 'admin@sanodehealthcare.com', name: 'Sanode Admin', role: 'ADMIN', passwordHash } });
   for (const item of products) {
     const availableStrips = item.batches.reduce((sum, batch) => sum + batch.boxes * 10, 0);
     const product = await prisma.product.upsert({
