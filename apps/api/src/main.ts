@@ -9,9 +9,18 @@ async function bootstrap() {
   if (process.env.NODE_ENV === 'production' && !process.env.JWT_SECRET) throw new Error('JWT_SECRET must be set in production.');
   app.setGlobalPrefix('v1');
   app.enableShutdownHooks();
-  app.getHttpAdapter().getInstance().disable('x-powered-by');
   app.use(cookieParser());
-  app.enableCors({ origin: process.env.WEB_ORIGIN?.split(',') ?? ['http://localhost:3000'], credentials: true });
+  const allowedOrigins = process.env.WEB_ORIGIN?.split(',').map((o) => o.trim()) ?? ['http://localhost:3000'];
+  app.enableCors({
+    origin: (requestOrigin, callback) => {
+      if (!requestOrigin || allowedOrigins.includes('*') || allowedOrigins.includes(requestOrigin) || requestOrigin.endsWith('.vercel.app')) {
+        callback(null, true);
+      } else {
+        callback(null, false);
+      }
+    },
+    credentials: true,
+  });
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true, forbidNonWhitelisted: true }));
   if (process.env.NODE_ENV !== 'production' || process.env.EXPOSE_API_DOCS === 'true') {
     const document = SwaggerModule.createDocument(app, new DocumentBuilder()
